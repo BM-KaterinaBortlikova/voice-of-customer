@@ -99,4 +99,292 @@ const ISSUES=[
   {t:"Alzabox / Z-box nedoručení",n:28,bg:"rgba(239,68,68,0.12)",bc:"rgba(239,68,68,0.3)",c:"#fca5a5",tr:"↑"},
   {t:"Problém s platbou / duplicitní",n:31,bg:"rgba(249,115,22,0.12)",bc:"rgba(249,115,22,0.3)",c:"#fed7aa",tr:"→"},
   {t:"Nedoručená zásilka",n:20,bg:"rgba(168,85,247,0.12)",bc:"rgba(168,85,247,0.3)",c:"#d8b4fe",tr:"↑"},
-  {t:"Přidání produktu k zaplacené obj.",n:13,bg:"rgba(99,102,241
+  {t:"Přidání produktu k zaplacené obj.",n:13,bg:"rgba(99,102,241,0.12)",bc:"rgba(99,102,241,0.3)",c:"#a5b4fc",tr:"→"},
+];
+const PRIO=[
+  {badge:"🔴 KRITICKÉ",bc:"#ef4444",bg:"rgba(239,68,68,0.06)",title:"Nefunkční slevové kódy — 45×/měsíc",desc:"Zákazníci nemohou dokončit objednávku. Operátoři musí ručně aplikovat slevy.",action:"IT: opravit uplatňování kupónů v e-shopu"},
+  {badge:"🔴 KRITICKÉ",bc:"#ef4444",bg:"rgba(239,68,68,0.06)",title:"Alzabox / Z-box nedoručení — 28×/měsíc",desc:"Zásilky nedorazí do výdejních boxů.",action:"Logistika: prověřit API integraci s Alzabox/Zásilkovnou"},
+  {badge:"🟡 DŮLEŽITÉ",bc:"#f59e0b",bg:"rgba(245,158,11,0.06)",title:"Platební problémy — 31×/měsíc",desc:"Duplicitní platby, neúspěšné transakce.",action:"IT: zlepšit feedback, automatický refund"},
+  {badge:"🟡 DŮLEŽITÉ",bc:"#f59e0b",bg:"rgba(245,158,11,0.06)",title:"Přidání produktu k zaplacené obj. — 13×/měsíc",desc:"Systém to neumožňuje.",action:"Produkt: funkce přidat k objednávce do 1h"},
+  {badge:"🟢 SLEDOVAT",bc:"#10b981",bg:"rgba(16,185,129,0.06)",title:"Reklamace poškozených zásilek — 8×/měsíc",desc:"Poškozené obaly při doručení.",action:"Logistika: ověřit balení citlivých produktů"},
+];
+
+const TABS=["přehled","trendy","fronty","poradenství","problémy"];
+const tt=s=>s.charAt(0).toUpperCase()+s.slice(1);
+const pct=(v,t)=>Math.round(v/t*100);
+
+function App() {
+  const [tab,setTab]=useState("přehled");
+  const [openPor,setOpenPor]=useState(null);
+  const [openQueue,setOpenQueue]=useState(null);
+
+  return (
+    <div style={css.page}>
+      <div style={css.header}>
+        <div>
+          <div style={css.h1}>Voice of Customer</div>
+          <div style={css.sub}>Brain Market · 1. 3. – 30. 3. 2026</div>
+        </div>
+        <div style={css.badge}>✓ Březen 2026</div>
+      </div>
+      <div style={css.tabBar}>
+        {TABS.map(t=>(
+          <button key={t} style={css.tab(tab,t)} onClick={()=>setTab(t)}>{tt(t)}</button>
+        ))}
+      </div>
+      <div style={css.body}>
+
+        {tab==="přehled" && <>
+          <div style={css.kpiRow}>
+            {[{l:"Celkem interakcí",v:"2 531",c:"#818cf8"},{l:"Pozitivní",v:"53 %",c:"#34d399"},{l:"Neutrální",v:"46 %",c:"#94a3b8"},{l:"Negativní",v:"1 %",c:"#f87171"},{l:"Podíl poradenství",v:"44 %",c:"#fbbf24"}].map(k=>(
+              <div key={k.l} style={css.kpi}><div style={css.kpiNum(k.c)}>{k.v}</div><div style={css.kpiLbl}>{k.l}</div></div>
+            ))}
+          </div>
+          <div style={css.grid2}>
+            <div style={css.card}>
+              <div style={css.cardTitle}>Hlavní kategorie</div>
+              <ResponsiveContainer width="100%" height={260}>
+                <BarChart data={CATS} layout="vertical" margin={{left:0,right:36}}>
+                  <XAxis type="number" tick={{fontSize:11,fill:"#6b7280"}} axisLine={false} tickLine={false}/>
+                  <YAxis type="category" dataKey="name" tick={{fontSize:11,fill:"#d1d5db"}} width={130} axisLine={false} tickLine={false}/>
+                  <Tooltip contentStyle={{background:"#1f2937",border:"1px solid #374151",borderRadius:8,fontSize:12}} cursor={{fill:"rgba(255,255,255,0.04)"}}/>
+                  <Bar dataKey="count" radius={[0,6,6,0]} label={{position:"right",fill:"#9ca3af",fontSize:11}}>
+                    {CATS.map((_,i)=><Cell key={i} fill={C[i%C.length]}/>)}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <div style={{display:"flex",flexDirection:"column",gap:12}}>
+              <div style={css.card}>
+                <div style={css.cardTitle}>Sentiment</div>
+                <ResponsiveContainer width="100%" height={110}>
+                  <PieChart>
+                    <Pie data={SENT_PIE} dataKey="value" cx="50%" cy="50%" outerRadius={48} innerRadius={22}>
+                      {SENT_PIE.map(e=><Cell key={e.name} fill={SC[e.name]}/>)}
+                    </Pie>
+                    <Tooltip contentStyle={{background:"#1f2937",border:"1px solid #374151",borderRadius:8,fontSize:12}}/>
+                  </PieChart>
+                </ResponsiveContainer>
+                {SENT_PIE.map(s=>(
+                  <div key={s.name} style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:6}}>
+                    <span style={{fontSize:11,background:SC[s.name]+"22",color:SC[s.name],borderRadius:99,padding:"2px 8px"}}>{s.name}</span>
+                    <span style={{fontSize:13,fontWeight:700,color:"#f1f5f9"}}>{s.value.toLocaleString("cs")} <span style={{fontSize:11,color:"#475569"}}>({pct(s.value,2531)} %)</span></span>
+                  </div>
+                ))}
+              </div>
+              <div style={css.card}>
+                <div style={css.cardTitle}>CZ vs SK</div>
+                {[{n:"CZ",t:2206,p:87,c:"#6366f1"},{n:"SK",t:325,p:13,c:"#22d3ee"}].map(x=>(
+                  <div key={x.n} style={{marginBottom:12}}>
+                    <div style={{display:"flex",justifyContent:"space-between",fontSize:12,marginBottom:4}}>
+                      <span style={{color:"#e2e8f0",fontWeight:600}}>{x.n}</span>
+                      <span style={{color:"#6b7280"}}>{x.t.toLocaleString("cs")} ({x.p} %)</span>
+                    </div>
+                    <div style={{height:6,background:"#0f172a",borderRadius:99,overflow:"hidden"}}>
+                      <div style={{height:"100%",width:x.p+"%",background:x.c,borderRadius:99}}/>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div style={css.card}>
+            <div style={css.cardTitle}>Objem podle typu fronty — CZ vs SK</div>
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={TYPE_DATA}>
+                <XAxis dataKey="name" tick={{fontSize:12,fill:"#9ca3af"}} axisLine={false} tickLine={false}/>
+                <YAxis tick={{fontSize:11,fill:"#6b7280"}} axisLine={false} tickLine={false}/>
+                <Tooltip contentStyle={{background:"#1f2937",border:"1px solid #374151",borderRadius:8,fontSize:12}} cursor={{fill:"rgba(255,255,255,0.04)"}}/>
+                <Legend wrapperStyle={{fontSize:12,color:"#d1d5db"}}/>
+                <Bar dataKey="cz" name="CZ" fill="#6366f1" radius={[4,4,0,0]}/>
+                <Bar dataKey="sk" name="SK" fill="#22d3ee" radius={[4,4,0,0]}/>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </>}
+
+        {tab==="trendy" && <>
+          <div style={css.infoBox}>Týdenní trendy — od příštího týdne přibydou přesná data z nového exportu.</div>
+          <div style={css.card}>
+            <div style={css.cardTitle}>Vývoj sentimentu — týdně</div>
+            <ResponsiveContainer width="100%" height={240}>
+              <LineChart data={WEEKLY}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#1f2937"/>
+                <XAxis dataKey="week" tick={{fontSize:11,fill:"#9ca3af"}} axisLine={false}/>
+                <YAxis tick={{fontSize:11,fill:"#9ca3af"}} axisLine={false} tickLine={false}/>
+                <Tooltip contentStyle={{background:"#1f2937",border:"1px solid #374151",borderRadius:8,fontSize:12}}/>
+                <Legend wrapperStyle={{fontSize:12,color:"#d1d5db"}}/>
+                <Line type="monotone" dataKey="pos" name="Pozitivní" stroke="#10b981" strokeWidth={2} dot={{r:4}}/>
+                <Line type="monotone" dataKey="neu" name="Neutrální" stroke="#6366f1" strokeWidth={2} dot={{r:4}}/>
+                <Line type="monotone" dataKey="neg" name="Negativní" stroke="#f43f5e" strokeWidth={2} dot={{r:4}}/>
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+          <div style={css.card}>
+            <div style={css.cardTitle}>Objem podle kategorie — týdně</div>
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={WEEKLY}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#1f2937"/>
+                <XAxis dataKey="week" tick={{fontSize:11,fill:"#9ca3af"}} axisLine={false}/>
+                <YAxis tick={{fontSize:11,fill:"#9ca3af"}} axisLine={false} tickLine={false}/>
+                <Tooltip contentStyle={{background:"#1f2937",border:"1px solid #374151",borderRadius:8,fontSize:12}} cursor={{fill:"rgba(255,255,255,0.04)"}}/>
+                <Legend wrapperStyle={{fontSize:12,color:"#d1d5db"}}/>
+                <Bar dataKey="por" name="Poradenství" fill="#6366f1" stackId="a"/>
+                <Bar dataKey="obj" name="Objednávky" fill="#22d3ee" stackId="a"/>
+                <Bar dataKey="rek" name="Reklamace" fill="#f43f5e" stackId="a" radius={[4,4,0,0]}/>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          <div style={css.card}>
+            <div style={css.cardTitle}>Celkový objem — týdně</div>
+            <ResponsiveContainer width="100%" height={150}>
+              <BarChart data={WEEKLY}>
+                <XAxis dataKey="week" tick={{fontSize:11,fill:"#9ca3af"}} axisLine={false}/>
+                <YAxis tick={{fontSize:11,fill:"#9ca3af"}} axisLine={false} tickLine={false}/>
+                <Tooltip contentStyle={{background:"#1f2937",border:"1px solid #374151",borderRadius:8,fontSize:12}} cursor={{fill:"rgba(255,255,255,0.04)"}}/>
+                <Bar dataKey="total" fill="#a855f7" radius={[4,4,0,0]} label={{position:"top",fill:"#9ca3af",fontSize:11}}/>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </>}
+
+        {tab==="fronty" && <>
+          <div style={{fontSize:12,color:"#6b7280",marginBottom:16}}>Kliknutím na frontu zobrazíš nejčastější topics</div>
+          {QUEUE_TOPICS.map(q=>{
+            const open=openQueue===q.name;
+            const max=q.topics[0]?.n||1;
+            return (
+              <div key={q.name} style={{background:"#111827",border:"1px solid #1f2937",borderRadius:12,overflow:"hidden",marginBottom:10}}>
+                <div onClick={()=>setOpenQueue(open?null:q.name)} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 20px",cursor:"pointer",background:open?"rgba(99,102,241,0.06)":"transparent"}}>
+                  <div style={{display:"flex",alignItems:"center",gap:12}}>
+                    <div style={{width:10,height:10,borderRadius:99,background:q.color}}/>
+                    <div style={{fontWeight:700,fontSize:14,color:"#f1f5f9"}}>{q.country==="CZ"?"🇨🇿":"🇸🇰"} {q.name}</div>
+                  </div>
+                  <div style={{display:"flex",alignItems:"center",gap:12}}>
+                    <span style={{fontSize:22,fontWeight:800,color:q.color}}>{q.total.toLocaleString("cs")}</span>
+                    <span style={{color:"#6b7280",fontSize:14}}>{open?"▲":"▼"}</span>
+                  </div>
+                </div>
+                {open && (
+                  <div style={{borderTop:"1px solid #1f2937"}}>
+                    {q.topics.map((tp,i)=>(
+                      <div key={i} style={{padding:"10px 20px",borderBottom:"1px solid #1f2937",display:"flex",alignItems:"center",gap:12}}>
+                        <div style={{width:24,fontSize:12,color:"#475569",flexShrink:0,textAlign:"right"}}>#{i+1}</div>
+                        <div style={{flex:1}}>
+                          <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
+                            <span style={{fontSize:13,color:"#e2e8f0"}}>{tp.t}</span>
+                            <span style={{fontSize:13,fontWeight:700,color:q.color}}>{tp.n}×</span>
+                          </div>
+                          <div style={{height:4,background:"#1f2937",borderRadius:99,overflow:"hidden"}}>
+                            <div style={{height:"100%",width:pct(tp.n,max)+"%",background:q.color,borderRadius:99}}/>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </>}
+
+        {tab==="poradenství" && <>
+          <div style={css.grid3}>
+            {[{l:"Poradenství celkem",v:"1 121",sub:"CZ: 1 059 · SK: 62",c:"#818cf8"},{l:"Podíl z celku",v:"44 %",sub:"Největší kategorie",c:"#fbbf24"},{l:"Sentiment",v:"~90 % pozitivní",sub:"Zákazníci spokojeni",c:"#34d399"}].map(k=>(
+              <div key={k.l} style={css.kpi}><div style={css.kpiNum(k.c)}>{k.v}</div><div style={{fontSize:12,color:"#e2e8f0",marginTop:4,fontWeight:600}}>{k.l}</div><div style={{fontSize:11,color:"#475569",marginTop:2}}>{k.sub}</div></div>
+            ))}
+          </div>
+          <div style={css.grid2}>
+            <div style={css.card}>
+              <div style={css.cardTitle}>Podtémata — klikni pro detail</div>
+              {POR_DETAIL.map((p,i)=>{
+                const open=openPor===p.name;
+                return (
+                  <div key={p.name} style={{borderRadius:8,marginBottom:4,overflow:"hidden",border:"1px solid",borderColor:open?"#6366f1":"#1f2937"}}>
+                    <div onClick={()=>setOpenPor(open?null:p.name)} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 14px",cursor:"pointer",background:open?"rgba(99,102,241,0.08)":"transparent"}}>
+                      <div style={{display:"flex",alignItems:"center",gap:8,flex:1}}>
+                        <div style={{width:28,height:6,borderRadius:99,background:C[i%C.length],flexShrink:0}}/>
+                        <span style={{fontSize:13,color:"#e2e8f0"}}>{p.name}</span>
+                      </div>
+                      <div style={{display:"flex",alignItems:"center",gap:8}}>
+                        <span style={{fontSize:14,fontWeight:700,color:C[i%C.length]}}>{p.count}</span>
+                        <span style={{color:"#475569",fontSize:12}}>{open?"▲":"▼"}</span>
+                      </div>
+                    </div>
+                    {open && (
+                      <div style={{borderTop:"1px solid #1f2937",background:"#0f172a"}}>
+                        {p.items.map((it,j)=>(
+                          <div key={j} style={{padding:"8px 14px 8px 50px",borderBottom:"1px solid #1f2937",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                            <span style={{fontSize:12,color:"#94a3b8"}}>{it.t}</span>
+                            <span style={{fontSize:13,fontWeight:700,color:C[i%C.length],flexShrink:0,marginLeft:8}}>{it.n}×</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <div style={css.card}>
+              <div style={css.cardTitle}>Co děláme / Plánujeme</div>
+              {INITIATIVES.map((ini,i)=>(
+                <div key={i} style={{background:"#0f172a",borderRadius:10,padding:"12px 14px",marginBottom:10,border:"1px solid #1f2937"}}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+                    <span style={{fontSize:13,fontWeight:700,color:"#f1f5f9"}}>{ini.topic}</span>
+                    <span style={{fontSize:10,fontWeight:700,color:ini.statusColor,background:ini.statusColor+"22",borderRadius:99,padding:"3px 8px",flexShrink:0,marginLeft:8}}>{ini.status}</span>
+                  </div>
+                  <div style={{fontSize:12,color:"#9ca3af",marginBottom:6}}>{ini.desc}</div>
+                  <div style={{fontSize:11,color:"#6366f1",background:"rgba(99,102,241,0.1)",borderRadius:6,padding:"5px 10px"}}>→ {ini.next}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>}
+
+        {tab==="problémy" && <>
+          <div style={css.grid2eq}>
+            <div style={{...css.card,background:"rgba(239,68,68,0.07)",border:"1px solid rgba(239,68,68,0.2)"}}>
+              <div style={{...css.cardTitle,color:"#fca5a5"}}>Negativní sentiment</div>
+              <div style={{fontSize:40,fontWeight:800,color:"#f87171",marginBottom:4}}>16</div>
+              <div style={{fontSize:11,color:"#9ca3af",marginBottom:16}}>z 2 531 interakcí (1 %)</div>
+              {[{name:"Email SK",total:123,neg:13},{name:"Email CZ",total:471,neg:9},{name:"CZ Reklamace",total:178,neg:7},{name:"CZ Objednávky",total:498,neg:6},{name:"SK Reklamace",total:33,neg:5},{name:"CZ Poradenství",total:1059,neg:3}].map(q=>(
+                <div key={q.name} style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+                  <span style={{fontSize:13,color:"#9ca3af"}}>{q.name}</span>
+                  <div><span style={{fontSize:14,fontWeight:700,color:"#fca5a5"}}>{q.neg}×</span><span style={{fontSize:11,color:"#475569",marginLeft:6}}>({pct(q.neg,q.total)} %)</span></div>
+                </div>
+              ))}
+            </div>
+            <div style={css.card}>
+              <div style={css.cardTitle}>Systémové problémy</div>
+              {ISSUES.map((p,i)=>(
+                <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 14px",borderRadius:8,marginBottom:6,background:p.bg,border:`1px solid ${p.bc}`}}>
+                  <span style={{fontSize:13,color:p.c}}>{p.t}</span>
+                  <div style={{marginLeft:8,flexShrink:0}}><span style={{fontSize:16,fontWeight:800,color:p.c}}>{p.n}×</span><span style={{fontSize:11,color:p.c,opacity:0.6,marginLeft:3}}>{p.tr}</span></div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div style={css.card}>
+            <div style={css.cardTitle}>Prioritizace — co řešit</div>
+            {PRIO.map((p,i)=>(
+              <div key={i} style={{borderRadius:12,padding:"14px 16px",marginBottom:10,borderLeft:`4px solid ${p.bc}`,background:p.bg}}>
+                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
+                  <span style={{fontSize:11,fontWeight:700,color:"#9ca3af"}}>{p.badge}</span>
+                  <span style={{fontSize:14,fontWeight:700,color:"#f1f5f9"}}>{p.title}</span>
+                </div>
+                <div style={{fontSize:12,color:"#9ca3af",marginBottom:6}}>{p.desc}</div>
+                <span style={{fontSize:11,background:"rgba(99,102,241,0.15)",color:"#a5b4fc",padding:"5px 10px",borderRadius:6,display:"inline-block"}}>→ {p.action}</span>
+              </div>
+            ))}
+          </div>
+        </>}
+
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
