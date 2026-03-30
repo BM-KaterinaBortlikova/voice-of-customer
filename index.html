@@ -1,7 +1,391 @@
 <!DOCTYPE html>
-<html>
-<head><meta charset="UTF-8"><title>Test</title></head>
-<body style="background:#030712;color:white;font-family:sans-serif;padding:40px">
-<h1>Voice of Customer funguje!</h1>
+<html lang="cs">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Voice of Customer — Brain Market</title>
+<script crossorigin src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.23.2/babel.min.js"></script>
+<script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
+<script src="https://unpkg.com/recharts@2.10.1/umd/Recharts.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,sans-serif;background:#030712;color:#e2e8f0}
+button{cursor:pointer;font-family:inherit}
+select{font-family:inherit}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState } = React;
+const { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, CartesianGrid, Legend } = Recharts;
+
+const C = ["#6366f1","#22d3ee","#f59e0b","#10b981","#f43f5e","#a855f7","#fb923c","#84cc16","#14b8a6","#e879f9"];
+const SC = {Pozitivní:"#10b981",Neutrální:"#6366f1",Negativní:"#f43f5e"};
+
+const css = {
+  page:{fontFamily:"system-ui,sans-serif",background:"#030712",color:"#e2e8f0",minHeight:"100vh"},
+  header:{background:"#111827",borderBottom:"1px solid #1f2937",padding:"16px 24px",display:"flex",alignItems:"center",justifyContent:"space-between"},
+  h1:{fontSize:20,fontWeight:800,color:"#fff",margin:0},
+  sub:{fontSize:12,color:"#6b7280",marginTop:2},
+  badge:{fontSize:11,color:"#34d399",background:"rgba(52,211,153,0.1)",border:"1px solid rgba(52,211,153,0.3)",borderRadius:8,padding:"6px 12px"},
+  tabBar:{background:"rgba(17,24,39,0.5)",borderBottom:"1px solid #1f2937",padding:"0 24px",display:"flex",gap:4},
+  tab:(a,t)=>({padding:"10px 16px",fontSize:13,fontWeight:500,cursor:"pointer",border:"none",background:"none",borderBottom:a===t?"2px solid #6366f1":"2px solid transparent",color:a===t?"#fff":"#6b7280"}),
+  body:{padding:"24px"},
+  kpiRow:{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:12,marginBottom:24},
+  kpi:{background:"#111827",border:"1px solid #1f2937",borderRadius:12,padding:"16px"},
+  kpiNum:(c)=>({fontSize:28,fontWeight:800,color:c,lineHeight:1}),
+  kpiLbl:{fontSize:11,color:"#6b7280",marginTop:4},
+  grid2:{display:"grid",gridTemplateColumns:"1.5fr 1fr",gap:16,marginBottom:16},
+  grid2eq:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,marginBottom:16},
+  grid3:{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:16,marginBottom:16},
+  card:{background:"#111827",border:"1px solid #1f2937",borderRadius:12,padding:20,marginBottom:16},
+  cardTitle:{fontSize:12,fontWeight:600,color:"#9ca3af",textTransform:"uppercase",letterSpacing:1,marginBottom:16},
+  infoBox:{background:"rgba(99,102,241,0.1)",border:"1px solid rgba(99,102,241,0.3)",borderRadius:12,padding:16,marginBottom:16,fontSize:13,color:"#a5b4fc"},
+  sel:{background:"#1f2937",border:"1px solid #374151",borderRadius:8,padding:"6px 12px",color:"#e2e8f0",fontSize:13},
+  miniTrack:{height:4,background:"#1f2937",borderRadius:99,overflow:"hidden",marginTop:3},
+  miniBar:(p,c)=>({height:4,borderRadius:99,background:c,width:p+"%"}),
+};
+
+const CATS = [
+  {name:"Poradenství",count:1121},{name:"Objednávky",count:640},{name:"Slevy",count:175},
+  {name:"Doručení",count:152},{name:"Platba",count:141},{name:"Reklamace",count:126},
+  {name:"Vrácení zboží",count:67},{name:"Dostupnost",count:54},{name:"Technická podpora",count:24},
+];
+const POR_DETAIL = [
+  {name:"Výběr produktu",count:135,items:[{t:"Omega 3 — rybí vs veganský",n:18},{t:"Hořčík — formy a rozdíly",n:15},{t:"Kolagen — prášek vs kapsle",n:12},{t:"Kreatin — typy",n:11},{t:"Probiotika",n:9},{t:"Ostatní",n:70}]},
+  {name:"Kombinace produktů",count:72,items:[{t:"D3 + K2 + Omega 3 + Hořčík",n:22},{t:"Železo + B-komplex + kys. listová",n:14},{t:"Komplexní suplementace",n:11},{t:"Kombinace s léky",n:9},{t:"Ostatní",n:16}]},
+  {name:"Bezpečnost užívání",count:55,items:[{t:"Kombinace s léky",n:16},{t:"Vhodnost při diagnózách",n:14},{t:"Omega 3 a legislativa",n:10},{t:"Specifické nemoci",n:9},{t:"Ostatní",n:6}]},
+  {name:"Individuální situace",count:50,items:[{t:"Více zdravotních potíží",n:18},{t:"Specifická dieta",n:12},{t:"Sportovci",n:10},{t:"Senioři",n:10}]},
+  {name:"Dávkování",count:48,items:[{t:"Vitamín D3 + K2",n:14},{t:"Hořčík — timing",n:11},{t:"Kolagen",n:8},{t:"Ostatní",n:15}]},
+  {name:"Doplňky pro děti",count:45,items:[{t:"Hořčík pro děti",n:14},{t:"Vitamíny pro sportující děti",n:11},{t:"Probiotika pro kojence",n:10},{t:"Omega 3 pro děti",n:10}]},
+  {name:"Zdravotní obtíže",count:43,items:[{t:"Klouby a pohybový aparát",n:12},{t:"Trávicí potíže",n:11},{t:"Únava",n:10},{t:"Imunita a alergie",n:10}]},
+  {name:"Těhotenství a kojení",count:30,items:[{t:"Omega 3 při těhotenství",n:10},{t:"Prenatal komplex",n:8},{t:"Kojení",n:7},{t:"Kyselina listová",n:5}]},
+  {name:"Vlasy a pokožka",count:26,items:[{t:"Vypadávání vlasů",n:12},{t:"Lámavé nehty",n:8},{t:"Pleť",n:6}]},
+  {name:"Únava a energie",count:22,items:[{t:"Energy Magnesium",n:8},{t:"B-komplex",n:7},{t:"Adaptogeny",n:7}]},
+  {name:"Spánek",count:16,items:[{t:"Sleep Magnesium",n:7},{t:"Kombinace pro spánek",n:5},{t:"Nežádoucí účinky",n:4}]},
+  {name:"Imunita",count:14,items:[{t:"Ekzém, astma, alergie",n:6},{t:"Vitamín C",n:5},{t:"Zinek, Selen",n:3}]},
+  {name:"Trávení",count:13,items:[{t:"Průjem po hořčíku",n:5},{t:"Gut Healing",n:4},{t:"Probiotika IBS",n:4}]},
+  {name:"Stres a psychika",count:9,items:[{t:"Adaptogeny",n:4},{t:"Přírodní antidepresiva",n:3},{t:"Kortizol",n:2}]},
+];
+const INITIATIVES = [
+  {topic:"Výběr produktu / FAQ",status:"🟢 Probíhá",statusColor:"#10b981",desc:"FAQ sekce na webu — spolupráce s produktovým oddělením. U některých produktů již zavedeno.",next:"Rozšíření na další kategorie"},
+  {topic:"Těhotenství a kojení",status:"🟡 Plánujeme",statusColor:"#f59e0b",desc:"Dedikovaný průvodce. 30 dotazů/měsíc.",next:"Konzultace s produktovým odd."},
+  {topic:"Doplňky pro děti",status:"🟡 Plánujeme",statusColor:"#f59e0b",desc:"Sekce s věkovým dávkováním. 45 dotazů/měsíc.",next:"Domluvit s produktovým a obsahovým odd."},
+  {topic:"Dávkování",status:"🔵 Data sbíráme",statusColor:"#6366f1",desc:"48 dotazů/měsíc. Kandidát pro chatbot.",next:"Analyzovat → podklad pro IT"},
+  {topic:"Spánek",status:"🔵 Data sbíráme",statusColor:"#6366f1",desc:"16 dotazů/měsíc. Roste.",next:"Sdílet data s marketingem"},
+];
+const QUEUE_TOPICS = [
+  {name:"CZ Poradenství",country:"CZ",total:1059,color:"#6366f1",topics:[{t:"Výběr produktu",n:135},{t:"Kombinace produktů",n:72},{t:"Bezpečnost užívání",n:55},{t:"Individuální situace",n:50},{t:"Dávkování",n:48},{t:"Doplňky pro děti",n:45}]},
+  {name:"CZ Objednávky",country:"CZ",total:498,color:"#22d3ee",topics:[{t:"Stav objednávky",n:95},{t:"Změna adresy",n:48},{t:"Přidání produktu",n:38},{t:"Storno",n:35},{t:"Sloučení objednávek",n:22},{t:"Prioritní expedice",n:18}]},
+  {name:"CZ Reklamace",country:"CZ",total:178,color:"#f43f5e",topics:[{t:"Poškozená zásilka",n:52},{t:"Nedoručená zásilka",n:45},{t:"Nežádoucí účinky",n:28},{t:"Chybný produkt",n:22},{t:"Zpoždění",n:18},{t:"Vrácení",n:13}]},
+  {name:"Email CZ",country:"CZ",total:471,color:"#f59e0b",topics:[{t:"Dotaz na objednávku",n:98},{t:"Slevový kód",n:72},{t:"Platba a fakturace",n:55},{t:"Poradenství",n:48},{t:"Vrácení zboží",n:35},{t:"Reklamace",n:28}]},
+  {name:"SK Poradenství",country:"SK",total:62,color:"#a855f7",topics:[{t:"Výběr produktu",n:18},{t:"Dávkování",n:12},{t:"Kombinace",n:10},{t:"Bezpečnost",n:8},{t:"Dostupnost",n:7},{t:"Ostatní",n:7}]},
+  {name:"SK Objednávky",country:"SK",total:107,color:"#14b8a6",topics:[{t:"Stav objednávky",n:32},{t:"Změna adresy",n:18},{t:"Platba",n:15},{t:"Slevový kód",n:14},{t:"Storno",n:11},{t:"Ostatní",n:17}]},
+  {name:"SK Reklamace",country:"SK",total:33,color:"#e879f9",topics:[{t:"Poškozená zásilka",n:12},{t:"Nedoručená zásilka",n:9},{t:"Vrácení",n:7},{t:"Ostatní",n:5}]},
+  {name:"Email SK",country:"SK",total:123,color:"#fb923c",topics:[{t:"Dotaz na objednávku",n:28},{t:"Slevový kód",n:22},{t:"Platba",n:18},{t:"Poradenství",n:15},{t:"Vrácení",n:12},{t:"Ostatní",n:28}]},
+];
+const WEEKLY=[
+  {week:"T1 1–7.3",total:580,pos:308,neu:251,neg:21,por:245,obj:180,rek:42},
+  {week:"T2 8–14.3",total:620,pos:329,neu:272,neg:19,por:262,obj:195,rek:45},
+  {week:"T3 15–21.3",total:595,pos:316,neu:265,neg:14,por:251,obj:188,rek:40},
+  {week:"T4 22–30.3",total:736,pos:391,neu:333,neg:12,por:301,obj:230,rek:51},
+];
+const SENT_PIE=[{name:"Pozitivní",value:1344},{name:"Neutrální",value:1171},{name:"Negativní",value:16}];
+const TYPE_DATA=[{name:"Poradenství",cz:1059,sk:62},{name:"Objednávky",cz:498,sk:107},{name:"Reklamace",cz:178,sk:33},{name:"Email",cz:471,sk:123}];
+const ISSUES=[
+  {t:"Nefunkční / chybějící slevový kód",n:45,bg:"rgba(251,191,36,0.12)",bc:"rgba(251,191,36,0.3)",c:"#fde68a",tr:"↑"},
+  {t:"Alzabox / Z-box nedoručení",n:28,bg:"rgba(239,68,68,0.12)",bc:"rgba(239,68,68,0.3)",c:"#fca5a5",tr:"↑"},
+  {t:"Problém s platbou / duplicitní",n:31,bg:"rgba(249,115,22,0.12)",bc:"rgba(249,115,22,0.3)",c:"#fed7aa",tr:"→"},
+  {t:"Nedoručená zásilka",n:20,bg:"rgba(168,85,247,0.12)",bc:"rgba(168,85,247,0.3)",c:"#d8b4fe",tr:"↑"},
+  {t:"Přidání produktu k zaplacené obj.",n:13,bg:"rgba(99,102,241,0.12)",bc:"rgba(99,102,241,0.3)",c:"#a5b4fc",tr:"→"},
+];
+const PRIO=[
+  {badge:"🔴 KRITICKÉ",bc:"#ef4444",bg:"rgba(239,68,68,0.06)",title:"Nefunkční slevové kódy — 45×/měsíc",desc:"Zákazníci nemohou dokončit objednávku. Operátoři musí ručně aplikovat slevy.",action:"IT: opravit uplatňování kupónů v e-shopu"},
+  {badge:"🔴 KRITICKÉ",bc:"#ef4444",bg:"rgba(239,68,68,0.06)",title:"Alzabox / Z-box nedoručení — 28×/měsíc",desc:"Zásilky nedorazí do výdejních boxů.",action:"Logistika: prověřit API integraci s Alzabox/Zásilkovnou"},
+  {badge:"🟡 DŮLEŽITÉ",bc:"#f59e0b",bg:"rgba(245,158,11,0.06)",title:"Platební problémy — 31×/měsíc",desc:"Duplicitní platby, neúspěšné transakce.",action:"IT: zlepšit feedback, automatický refund"},
+  {badge:"🟡 DŮLEŽITÉ",bc:"#f59e0b",bg:"rgba(245,158,11,0.06)",title:"Přidání produktu k zaplacené obj. — 13×/měsíc",desc:"Systém to neumožňuje.",action:"Produkt: funkce přidat k objednávce do 1h"},
+  {badge:"🟢 SLEDOVAT",bc:"#10b981",bg:"rgba(16,185,129,0.06)",title:"Reklamace poškozených zásilek — 8×/měsíc",desc:"Poškozené obaly při doručení.",action:"Logistika: ověřit balení citlivých produktů"},
+];
+
+const TABS=["přehled","trendy","fronty","poradenství","problémy"];
+const tt=s=>s.charAt(0).toUpperCase()+s.slice(1);
+const pct=(v,t)=>Math.round(v/t*100);
+
+function App() {
+  const [tab,setTab]=useState("přehled");
+  const [openPor,setOpenPor]=useState(null);
+  const [openQueue,setOpenQueue]=useState(null);
+
+  return (
+    <div style={css.page}>
+      <div style={css.header}>
+        <div>
+          <div style={css.h1}>Voice of Customer</div>
+          <div style={css.sub}>Brain Market · 1. 3. – 30. 3. 2026</div>
+        </div>
+        <div style={css.badge}>✓ Březen 2026</div>
+      </div>
+      <div style={css.tabBar}>
+        {TABS.map(t=>(
+          <button key={t} style={css.tab(tab,t)} onClick={()=>setTab(t)}>{tt(t)}</button>
+        ))}
+      </div>
+      <div style={css.body}>
+
+        {tab==="přehled" && <>
+          <div style={css.kpiRow}>
+            {[{l:"Celkem interakcí",v:"2 531",c:"#818cf8"},{l:"Pozitivní",v:"53 %",c:"#34d399"},{l:"Neutrální",v:"46 %",c:"#94a3b8"},{l:"Negativní",v:"1 %",c:"#f87171"},{l:"Podíl poradenství",v:"44 %",c:"#fbbf24"}].map(k=>(
+              <div key={k.l} style={css.kpi}><div style={css.kpiNum(k.c)}>{k.v}</div><div style={css.kpiLbl}>{k.l}</div></div>
+            ))}
+          </div>
+          <div style={css.grid2}>
+            <div style={css.card}>
+              <div style={css.cardTitle}>Hlavní kategorie</div>
+              <ResponsiveContainer width="100%" height={260}>
+                <BarChart data={CATS} layout="vertical" margin={{left:0,right:36}}>
+                  <XAxis type="number" tick={{fontSize:11,fill:"#6b7280"}} axisLine={false} tickLine={false}/>
+                  <YAxis type="category" dataKey="name" tick={{fontSize:11,fill:"#d1d5db"}} width={130} axisLine={false} tickLine={false}/>
+                  <Tooltip contentStyle={{background:"#1f2937",border:"1px solid #374151",borderRadius:8,fontSize:12}} cursor={{fill:"rgba(255,255,255,0.04)"}}/>
+                  <Bar dataKey="count" radius={[0,6,6,0]} label={{position:"right",fill:"#9ca3af",fontSize:11}}>
+                    {CATS.map((_,i)=><Cell key={i} fill={C[i%C.length]}/>)}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <div style={{display:"flex",flexDirection:"column",gap:12}}>
+              <div style={css.card}>
+                <div style={css.cardTitle}>Sentiment</div>
+                <ResponsiveContainer width="100%" height={110}>
+                  <PieChart>
+                    <Pie data={SENT_PIE} dataKey="value" cx="50%" cy="50%" outerRadius={48} innerRadius={22}>
+                      {SENT_PIE.map(e=><Cell key={e.name} fill={SC[e.name]}/>)}
+                    </Pie>
+                    <Tooltip contentStyle={{background:"#1f2937",border:"1px solid #374151",borderRadius:8,fontSize:12}}/>
+                  </PieChart>
+                </ResponsiveContainer>
+                {SENT_PIE.map(s=>(
+                  <div key={s.name} style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:6}}>
+                    <span style={{fontSize:11,background:SC[s.name]+"22",color:SC[s.name],borderRadius:99,padding:"2px 8px"}}>{s.name}</span>
+                    <span style={{fontSize:13,fontWeight:700,color:"#f1f5f9"}}>{s.value.toLocaleString("cs")} <span style={{fontSize:11,color:"#475569"}}>({pct(s.value,2531)} %)</span></span>
+                  </div>
+                ))}
+              </div>
+              <div style={css.card}>
+                <div style={css.cardTitle}>CZ vs SK</div>
+                {[{n:"CZ",t:2206,p:87,c:"#6366f1"},{n:"SK",t:325,p:13,c:"#22d3ee"}].map(x=>(
+                  <div key={x.n} style={{marginBottom:12}}>
+                    <div style={{display:"flex",justifyContent:"space-between",fontSize:12,marginBottom:4}}>
+                      <span style={{color:"#e2e8f0",fontWeight:600}}>{x.n}</span>
+                      <span style={{color:"#6b7280"}}>{x.t.toLocaleString("cs")} ({x.p} %)</span>
+                    </div>
+                    <div style={{height:6,background:"#0f172a",borderRadius:99,overflow:"hidden"}}>
+                      <div style={{height:"100%",width:x.p+"%",background:x.c,borderRadius:99}}/>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div style={css.card}>
+            <div style={css.cardTitle}>Objem podle typu fronty — CZ vs SK</div>
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={TYPE_DATA}>
+                <XAxis dataKey="name" tick={{fontSize:12,fill:"#9ca3af"}} axisLine={false} tickLine={false}/>
+                <YAxis tick={{fontSize:11,fill:"#6b7280"}} axisLine={false} tickLine={false}/>
+                <Tooltip contentStyle={{background:"#1f2937",border:"1px solid #374151",borderRadius:8,fontSize:12}} cursor={{fill:"rgba(255,255,255,0.04)"}}/>
+                <Legend wrapperStyle={{fontSize:12,color:"#d1d5db"}}/>
+                <Bar dataKey="cz" name="CZ" fill="#6366f1" radius={[4,4,0,0]}/>
+                <Bar dataKey="sk" name="SK" fill="#22d3ee" radius={[4,4,0,0]}/>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </>}
+
+        {tab==="trendy" && <>
+          <div style={css.infoBox}>Týdenní trendy — od příštího týdne přibydou přesná data z nového exportu.</div>
+          <div style={css.card}>
+            <div style={css.cardTitle}>Vývoj sentimentu — týdně</div>
+            <ResponsiveContainer width="100%" height={240}>
+              <LineChart data={WEEKLY}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#1f2937"/>
+                <XAxis dataKey="week" tick={{fontSize:11,fill:"#9ca3af"}} axisLine={false}/>
+                <YAxis tick={{fontSize:11,fill:"#9ca3af"}} axisLine={false} tickLine={false}/>
+                <Tooltip contentStyle={{background:"#1f2937",border:"1px solid #374151",borderRadius:8,fontSize:12}}/>
+                <Legend wrapperStyle={{fontSize:12,color:"#d1d5db"}}/>
+                <Line type="monotone" dataKey="pos" name="Pozitivní" stroke="#10b981" strokeWidth={2} dot={{r:4}}/>
+                <Line type="monotone" dataKey="neu" name="Neutrální" stroke="#6366f1" strokeWidth={2} dot={{r:4}}/>
+                <Line type="monotone" dataKey="neg" name="Negativní" stroke="#f43f5e" strokeWidth={2} dot={{r:4}}/>
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+          <div style={css.card}>
+            <div style={css.cardTitle}>Objem podle kategorie — týdně</div>
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={WEEKLY}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#1f2937"/>
+                <XAxis dataKey="week" tick={{fontSize:11,fill:"#9ca3af"}} axisLine={false}/>
+                <YAxis tick={{fontSize:11,fill:"#9ca3af"}} axisLine={false} tickLine={false}/>
+                <Tooltip contentStyle={{background:"#1f2937",border:"1px solid #374151",borderRadius:8,fontSize:12}} cursor={{fill:"rgba(255,255,255,0.04)"}}/>
+                <Legend wrapperStyle={{fontSize:12,color:"#d1d5db"}}/>
+                <Bar dataKey="por" name="Poradenství" fill="#6366f1" stackId="a"/>
+                <Bar dataKey="obj" name="Objednávky" fill="#22d3ee" stackId="a"/>
+                <Bar dataKey="rek" name="Reklamace" fill="#f43f5e" stackId="a" radius={[4,4,0,0]}/>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          <div style={css.card}>
+            <div style={css.cardTitle}>Celkový objem — týdně</div>
+            <ResponsiveContainer width="100%" height={150}>
+              <BarChart data={WEEKLY}>
+                <XAxis dataKey="week" tick={{fontSize:11,fill:"#9ca3af"}} axisLine={false}/>
+                <YAxis tick={{fontSize:11,fill:"#9ca3af"}} axisLine={false} tickLine={false}/>
+                <Tooltip contentStyle={{background:"#1f2937",border:"1px solid #374151",borderRadius:8,fontSize:12}} cursor={{fill:"rgba(255,255,255,0.04)"}}/>
+                <Bar dataKey="total" fill="#a855f7" radius={[4,4,0,0]} label={{position:"top",fill:"#9ca3af",fontSize:11}}/>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </>}
+
+        {tab==="fronty" && <>
+          <div style={{fontSize:12,color:"#6b7280",marginBottom:16}}>Kliknutím na frontu zobrazíš nejčastější topics</div>
+          {QUEUE_TOPICS.map(q=>{
+            const open=openQueue===q.name;
+            const max=q.topics[0]?.n||1;
+            return (
+              <div key={q.name} style={{background:"#111827",border:"1px solid #1f2937",borderRadius:12,overflow:"hidden",marginBottom:10}}>
+                <div onClick={()=>setOpenQueue(open?null:q.name)} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 20px",cursor:"pointer",background:open?"rgba(99,102,241,0.06)":"transparent"}}>
+                  <div style={{display:"flex",alignItems:"center",gap:12}}>
+                    <div style={{width:10,height:10,borderRadius:99,background:q.color}}/>
+                    <div style={{fontWeight:700,fontSize:14,color:"#f1f5f9"}}>{q.country==="CZ"?"🇨🇿":"🇸🇰"} {q.name}</div>
+                  </div>
+                  <div style={{display:"flex",alignItems:"center",gap:12}}>
+                    <span style={{fontSize:22,fontWeight:800,color:q.color}}>{q.total.toLocaleString("cs")}</span>
+                    <span style={{color:"#6b7280",fontSize:14}}>{open?"▲":"▼"}</span>
+                  </div>
+                </div>
+                {open && (
+                  <div style={{borderTop:"1px solid #1f2937"}}>
+                    {q.topics.map((tp,i)=>(
+                      <div key={i} style={{padding:"10px 20px",borderBottom:"1px solid #1f2937",display:"flex",alignItems:"center",gap:12}}>
+                        <div style={{width:24,fontSize:12,color:"#475569",flexShrink:0,textAlign:"right"}}>#{i+1}</div>
+                        <div style={{flex:1}}>
+                          <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
+                            <span style={{fontSize:13,color:"#e2e8f0"}}>{tp.t}</span>
+                            <span style={{fontSize:13,fontWeight:700,color:q.color}}>{tp.n}×</span>
+                          </div>
+                          <div style={{height:4,background:"#1f2937",borderRadius:99,overflow:"hidden"}}>
+                            <div style={{height:"100%",width:pct(tp.n,max)+"%",background:q.color,borderRadius:99}}/>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </>}
+
+        {tab==="poradenství" && <>
+          <div style={css.grid3}>
+            {[{l:"Poradenství celkem",v:"1 121",sub:"CZ: 1 059 · SK: 62",c:"#818cf8"},{l:"Podíl z celku",v:"44 %",sub:"Největší kategorie",c:"#fbbf24"},{l:"Sentiment",v:"~90 % pozitivní",sub:"Zákazníci spokojeni",c:"#34d399"}].map(k=>(
+              <div key={k.l} style={css.kpi}><div style={css.kpiNum(k.c)}>{k.v}</div><div style={{fontSize:12,color:"#e2e8f0",marginTop:4,fontWeight:600}}>{k.l}</div><div style={{fontSize:11,color:"#475569",marginTop:2}}>{k.sub}</div></div>
+            ))}
+          </div>
+          <div style={css.grid2}>
+            <div style={css.card}>
+              <div style={css.cardTitle}>Podtémata — klikni pro detail</div>
+              {POR_DETAIL.map((p,i)=>{
+                const open=openPor===p.name;
+                return (
+                  <div key={p.name} style={{borderRadius:8,marginBottom:4,overflow:"hidden",border:"1px solid",borderColor:open?"#6366f1":"#1f2937"}}>
+                    <div onClick={()=>setOpenPor(open?null:p.name)} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 14px",cursor:"pointer",background:open?"rgba(99,102,241,0.08)":"transparent"}}>
+                      <div style={{display:"flex",alignItems:"center",gap:8,flex:1}}>
+                        <div style={{width:28,height:6,borderRadius:99,background:C[i%C.length],flexShrink:0}}/>
+                        <span style={{fontSize:13,color:"#e2e8f0"}}>{p.name}</span>
+                      </div>
+                      <div style={{display:"flex",alignItems:"center",gap:8}}>
+                        <span style={{fontSize:14,fontWeight:700,color:C[i%C.length]}}>{p.count}</span>
+                        <span style={{color:"#475569",fontSize:12}}>{open?"▲":"▼"}</span>
+                      </div>
+                    </div>
+                    {open && (
+                      <div style={{borderTop:"1px solid #1f2937",background:"#0f172a"}}>
+                        {p.items.map((it,j)=>(
+                          <div key={j} style={{padding:"8px 14px 8px 50px",borderBottom:"1px solid #1f2937",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                            <span style={{fontSize:12,color:"#94a3b8"}}>{it.t}</span>
+                            <span style={{fontSize:13,fontWeight:700,color:C[i%C.length],flexShrink:0,marginLeft:8}}>{it.n}×</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <div style={css.card}>
+              <div style={css.cardTitle}>Co děláme / Plánujeme</div>
+              {INITIATIVES.map((ini,i)=>(
+                <div key={i} style={{background:"#0f172a",borderRadius:10,padding:"12px 14px",marginBottom:10,border:"1px solid #1f2937"}}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+                    <span style={{fontSize:13,fontWeight:700,color:"#f1f5f9"}}>{ini.topic}</span>
+                    <span style={{fontSize:10,fontWeight:700,color:ini.statusColor,background:ini.statusColor+"22",borderRadius:99,padding:"3px 8px",flexShrink:0,marginLeft:8}}>{ini.status}</span>
+                  </div>
+                  <div style={{fontSize:12,color:"#9ca3af",marginBottom:6}}>{ini.desc}</div>
+                  <div style={{fontSize:11,color:"#6366f1",background:"rgba(99,102,241,0.1)",borderRadius:6,padding:"5px 10px"}}>→ {ini.next}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>}
+
+        {tab==="problémy" && <>
+          <div style={css.grid2eq}>
+            <div style={{...css.card,background:"rgba(239,68,68,0.07)",border:"1px solid rgba(239,68,68,0.2)"}}>
+              <div style={{...css.cardTitle,color:"#fca5a5"}}>Negativní sentiment</div>
+              <div style={{fontSize:40,fontWeight:800,color:"#f87171",marginBottom:4}}>16</div>
+              <div style={{fontSize:11,color:"#9ca3af",marginBottom:16}}>z 2 531 interakcí (1 %)</div>
+              {[{name:"Email SK",total:123,neg:13},{name:"Email CZ",total:471,neg:9},{name:"CZ Reklamace",total:178,neg:7},{name:"CZ Objednávky",total:498,neg:6},{name:"SK Reklamace",total:33,neg:5},{name:"CZ Poradenství",total:1059,neg:3}].map(q=>(
+                <div key={q.name} style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+                  <span style={{fontSize:13,color:"#9ca3af"}}>{q.name}</span>
+                  <div><span style={{fontSize:14,fontWeight:700,color:"#fca5a5"}}>{q.neg}×</span><span style={{fontSize:11,color:"#475569",marginLeft:6}}>({pct(q.neg,q.total)} %)</span></div>
+                </div>
+              ))}
+            </div>
+            <div style={css.card}>
+              <div style={css.cardTitle}>Systémové problémy</div>
+              {ISSUES.map((p,i)=>(
+                <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 14px",borderRadius:8,marginBottom:6,background:p.bg,border:`1px solid ${p.bc}`}}>
+                  <span style={{fontSize:13,color:p.c}}>{p.t}</span>
+                  <div style={{marginLeft:8,flexShrink:0}}><span style={{fontSize:16,fontWeight:800,color:p.c}}>{p.n}×</span><span style={{fontSize:11,color:p.c,opacity:0.6,marginLeft:3}}>{p.tr}</span></div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div style={css.card}>
+            <div style={css.cardTitle}>Prioritizace — co řešit</div>
+            {PRIO.map((p,i)=>(
+              <div key={i} style={{borderRadius:12,padding:"14px 16px",marginBottom:10,borderLeft:`4px solid ${p.bc}`,background:p.bg}}>
+                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
+                  <span style={{fontSize:11,fontWeight:700,color:"#9ca3af"}}>{p.badge}</span>
+                  <span style={{fontSize:14,fontWeight:700,color:"#f1f5f9"}}>{p.title}</span>
+                </div>
+                <div style={{fontSize:12,color:"#9ca3af",marginBottom:6}}>{p.desc}</div>
+                <span style={{fontSize:11,background:"rgba(99,102,241,0.15)",color:"#a5b4fc",padding:"5px 10px",borderRadius:6,display:"inline-block"}}>→ {p.action}</span>
+              </div>
+            ))}
+          </div>
+        </>}
+
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
 </body>
 </html>
