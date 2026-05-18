@@ -8,104 +8,105 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'DM Sans',system-ui,sans-serif;background:#07090f;color:#dde1ec;min-height:100vh}
+body{font-family:'DM Sans',system-ui,sans-serif;background:#f4f6fb;color:#1a1d2e;min-height:100vh}
 button,select,input,textarea{font-family:inherit;cursor:pointer}
 ::-webkit-scrollbar{width:4px;height:4px}
-::-webkit-scrollbar-track{background:#0d0f1a}
-::-webkit-scrollbar-thumb{background:#2a2d3e;border-radius:2px}
-.hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:#0d1020;border-bottom:1px solid #1e2235;position:sticky;top:0;z-index:100}
+::-webkit-scrollbar-track{background:#e8eaf0}
+::-webkit-scrollbar-thumb{background:#374151;border-radius:2px}
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:#fff;border-bottom:1px solid #e2e5ef;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.06)}
 .logo{width:32px;height:32px;background:#5b6ef5;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff;flex-shrink:0}
-.hdr-title{font-size:15px;font-weight:600;color:#fff;margin-left:10px}
+.hdr-title{font-size:15px;font-weight:600;color:#1a1d2e;margin-left:10px}
 .hdr-sub{font-size:11px;color:#6b7280;margin-left:10px}
-.badge-ok{font-size:11px;padding:3px 10px;border-radius:6px;font-weight:500;background:rgba(15,110,86,.2);color:#22d3a0;border:1px solid rgba(15,110,86,.3)}
-.month-bar{display:flex;gap:6px;align-items:center;padding:10px 24px;background:#0d1020;border-bottom:1px solid #1e2235;flex-wrap:wrap}
-.m-label{font-size:10px;color:#6b7280;margin-right:4px;letter-spacing:.5px}
-.m-btn{padding:5px 12px;border-radius:6px;border:1px solid #252840;background:transparent;color:#6b7280;font-size:12px;transition:all .15s}
-.m-btn:hover{border-color:#5b6ef5;color:#dde1ec}
+.badge-ok{font-size:11px;padding:3px 10px;border-radius:6px;font-weight:500;background:rgba(15,110,86,.1);color:#0a7c5c;border:1px solid rgba(15,110,86,.2)}
+.month-bar{display:flex;gap:6px;align-items:center;padding:10px 24px;background:#fff;border-bottom:1px solid #e2e5ef;flex-wrap:wrap}
+.m-label{font-size:10px;color:#6b7280;margin-right:4px;letter-spacing:.5px;text-transform:uppercase}
+.m-btn{padding:5px 12px;border-radius:6px;border:1px solid #e2e5ef;background:transparent;color:#6b7280;font-size:12px;transition:all .15s}
+.m-btn:hover{border-color:#5b6ef5;color:#5b6ef5}
 .m-btn.active{background:#5b6ef5;border-color:#5b6ef5;color:#fff}
-.m-add{padding:5px 12px;border-radius:6px;border:1px dashed #252840;background:transparent;color:#6b7280;font-size:12px}
+.m-add{padding:5px 12px;border-radius:6px;border:1px dashed #d1d5e0;background:transparent;color:#6b7280;font-size:12px}
 .m-add:hover{border-color:#5b6ef5;color:#5b6ef5}
-.tabs{display:flex;gap:2px;background:#0d1020;border-bottom:1px solid #1e2235;padding:0 24px}
+.tabs{display:flex;gap:2px;background:#fff;border-bottom:1px solid #e2e5ef;padding:0 24px}
 .tab{padding:10px 16px;font-size:11px;font-weight:500;border:none;background:none;border-bottom:2px solid transparent;color:#6b7280;cursor:pointer;text-transform:uppercase;letter-spacing:.5px;transition:all .15s;margin-bottom:-1px}
-.tab:hover{color:#dde1ec}
-.tab.active{border-bottom-color:#5b6ef5;color:#fff}
+.tab:hover{color:#1a1d2e}
+.tab.active{border-bottom-color:#5b6ef5;color:#5b6ef5}
 .body{padding:24px;max-width:1400px}
 .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px}
-.kpi{background:#0d1020;border:1px solid #1e2235;border-radius:10px;padding:14px 16px;border-top:2px solid}
+.kpi{background:#fff;border:1px solid #e2e5ef;border-radius:10px;padding:14px 16px;border-top:2px solid;box-shadow:0 1px 3px rgba(0,0,0,.04)}
 .kpi-num{font-size:26px;font-weight:600;line-height:1}
 .kpi-lbl{font-size:10px;color:#6b7280;margin-top:5px;letter-spacing:.5px;text-transform:uppercase}
 .g2{display:grid;grid-template-columns:1.5fr 1fr;gap:14px;margin-bottom:14px}
 .g2eq{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
 .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
 .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
-.card{background:#0d1020;border:1px solid #1e2235;border-radius:12px;padding:18px;margin-bottom:14px}
-.ctitle{font-size:10px;font-weight:500;color:#6b7280;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:14px}
+.card{background:#fff;border:1px solid #e2e5ef;border-radius:12px;padding:18px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.ctitle{font-size:10px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:14px}
 /* expandable rows */
-.exp-row{border:1px solid #1e2235;border-radius:8px;overflow:hidden;margin-bottom:6px;transition:border-color .15s}
+.exp-row{border:1px solid #e2e5ef;border-radius:8px;overflow:hidden;margin-bottom:6px;transition:border-color .15s;background:#fff}
 .exp-row.open{border-color:#5b6ef5}
 .exp-row.open2{border-color:#0F6E56}
 .exp-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;background:transparent;transition:background .15s;width:100%;border:none;text-align:left}
-.exp-row.open .exp-hdr{background:rgba(91,110,245,.05)}
-.exp-row.open2 .exp-hdr{background:rgba(15,110,86,.05)}
-.exp-body{border-top:1px solid #1e2235;background:#0a0c18}
-.exp-item{display:flex;justify-content:space-between;align-items:center;padding:8px 14px 8px 40px;border-bottom:1px solid #1e2235}
+.exp-row.open .exp-hdr{background:rgba(91,110,245,.04)}
+.exp-row.open2 .exp-hdr{background:rgba(15,110,86,.04)}
+.exp-body{border-top:1px solid #e2e5ef;background:#f8f9fc}
+.exp-item{display:flex;justify-content:space-between;align-items:center;padding:8px 14px 8px 40px;border-bottom:1px solid #e2e5ef}
 .exp-item:last-child{border-bottom:none}
 .exp-item.clickable{cursor:pointer;transition:background .12s}
 .exp-item.clickable:hover{background:rgba(91,110,245,.04)}
-.exp-item.clickable.sel{background:rgba(91,110,245,.08);border-left:2px solid #5b6ef5}
+.exp-item.clickable.sel{background:rgba(91,110,245,.06);border-left:2px solid #5b6ef5}
 /* sub expandable */
-.sub-exp{border:1px solid #1e2235;border-radius:6px;margin:4px 8px 4px 40px;overflow:hidden}
+.sub-exp{border:1px solid #e2e5ef;border-radius:6px;margin:4px 8px 4px 40px;overflow:hidden;background:#fff}
 .sub-exp.open{border-color:#0F6E56}
 .sub-hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;cursor:pointer;width:100%;border:none;background:transparent;text-align:left;transition:background .15s}
-.sub-exp.open .sub-hdr{background:rgba(15,110,86,.05)}
-.sub-body{border-top:1px solid #1e2235;background:#070a14;padding:8px 12px}
-.mini-track{height:3px;background:#131629;border-radius:99px;overflow:hidden;margin-top:4px}
+.sub-exp.open .sub-hdr{background:rgba(15,110,86,.04)}
+.sub-body{border-top:1px solid #e2e5ef;background:#f8f9fc;padding:8px 12px}
+.mini-track{height:3px;background:#e8eaf0;border-radius:99px;overflow:hidden;margin-top:4px}
 .mini-fill{height:100%;border-radius:99px}
 /* issue cards */
-.issue-card{padding:12px 14px;margin-bottom:10px;border-left:3px solid;border-radius:0 8px 8px 0;background:#0a0c18}
+.issue-card{padding:12px 14px;margin-bottom:10px;border-left:3px solid;border-radius:0 8px 8px 0;background:#f8f9fc}
 .issue-card .meta-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .meta-pill{font-size:10px;padding:2px 8px;border-radius:4px;font-weight:500}
-.comment-block{margin-top:10px;border-top:1px solid #1e2235;padding-top:10px}
-.comment{background:#0d1020;border-radius:6px;padding:8px 10px;margin-bottom:6px;font-size:11px;border-left:2px solid #252840}
+.comment-block{margin-top:10px;border-top:1px solid #e2e5ef;padding-top:10px}
+.comment{background:#fff;border-radius:6px;padding:8px 10px;margin-bottom:6px;font-size:11px;border-left:2px solid #e2e5ef;box-shadow:0 1px 2px rgba(0,0,0,.04)}
 .comment .c-meta{font-size:10px;color:#6b7280;margin-bottom:3px}
 .add-comment{display:flex;gap:6px;margin-top:8px}
-.add-comment textarea{flex:1;background:#131629;border:1px solid #252840;border-radius:6px;padding:7px 10px;font-size:11px;color:#dde1ec;resize:none;min-height:36px}
+.add-comment textarea{flex:1;background:#fff;border:1px solid #d1d5e0;border-radius:6px;padding:7px 10px;font-size:11px;color:#1a1d2e;resize:none;min-height:36px}
 .add-comment textarea:focus{outline:none;border-color:#5b6ef5}
 .add-comment button{background:#5b6ef5;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:11px;font-weight:500}
 .add-comment button:hover{background:#4a5de0}
 /* status badges */
-.st-open{background:rgba(163,45,45,.2);color:#f87171;border:1px solid rgba(163,45,45,.3)}
-.st-progress{background:rgba(133,79,11,.2);color:#fbbf24;border:1px solid rgba(133,79,11,.3)}
-.st-done{background:rgba(15,110,86,.2);color:#22d3a0;border:1px solid rgba(15,110,86,.3)}
+.st-open{background:rgba(220,38,38,.08);color:#dc2626;border:1px solid rgba(220,38,38,.2)}
+.st-progress{background:rgba(217,119,6,.08);color:#d97706;border:1px solid rgba(217,119,6,.2)}
+.st-done{background:rgba(15,110,86,.08);color:#0a7c5c;border:1px solid rgba(15,110,86,.2)}
 /* agent table */
 .agent-tbl{width:100%;border-collapse:collapse;font-size:12px}
-.agent-tbl th{text-align:left;padding:7px 10px;color:#6b7280;font-size:10px;text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid #1e2235;font-weight:500}
-.agent-tbl td{padding:8px 10px;border-bottom:1px solid #1e2235;color:#dde1ec}
+.agent-tbl th{text-align:left;padding:7px 10px;color:#6b7280;font-size:10px;text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid #e2e5ef;font-weight:600}
+.agent-tbl td{padding:8px 10px;border-bottom:1px solid #e2e5ef;color:#1a1d2e}
 .agent-tbl tr:last-child td{border-bottom:none}
+.agent-tbl tr:hover td{background:#f8f9fc}
 /* upload */
-.upload-zone{border:2px dashed #252840;border-radius:12px;padding:28px;text-align:center;cursor:pointer;margin-bottom:16px;transition:all .2s;background:#0d1020}
-.upload-zone:hover,.upload-zone.drag{border-color:#5b6ef5;background:rgba(91,110,245,.04)}
+.upload-zone{border:2px dashed #d1d5e0;border-radius:12px;padding:28px;text-align:center;cursor:pointer;margin-bottom:16px;transition:all .2s;background:#fff}
+.upload-zone:hover,.upload-zone.drag{border-color:#5b6ef5;background:rgba(91,110,245,.03)}
 .upload-zone input{display:none}
-.legend{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:10px;font-size:12px;color:#9ca3af}
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:10px;font-size:12px;color:#6b7280}
 .legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0;display:inline-block}
-.row-item{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1e2235}
+.row-item{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #e2e5ef}
 .row-item:last-child{border-bottom:none}
 /* detail panel */
-.detail-panel{background:#0a0c18;border:1px solid #1e2235;border-radius:10px;padding:16px;height:100%;min-height:300px}
-.q-item{padding:6px 0;border-bottom:1px solid #131629;font-size:12px;color:#c4c9d9;display:flex;align-items:flex-start;gap:8px}
+.detail-panel{background:#f8f9fc;border:1px solid #e2e5ef;border-radius:10px;padding:16px;height:100%;min-height:300px}
+.q-item{padding:6px 0;border-bottom:1px solid #e8eaf0;font-size:12px;color:#374151;display:flex;align-items:flex-start;gap:8px}
 .q-item:last-child{border-bottom:none}
 .q-bullet{width:4px;height:4px;border-radius:50%;background:#5b6ef5;flex-shrink:0;margin-top:6px}
 /* modal overlay */
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:flex;align-items:center;justify-content:center}
-.modal{background:#0d1020;border:1px solid #1e2235;border-radius:14px;padding:24px;width:480px;max-width:95vw;max-height:90vh;overflow-y:auto}
-.modal h3{font-size:15px;font-weight:600;color:#fff;margin-bottom:16px}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;display:flex;align-items:center;justify-content:center}
+.modal{background:#fff;border:1px solid #e2e5ef;border-radius:14px;padding:24px;width:480px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.12)}
+.modal h3{font-size:15px;font-weight:600;color:#1a1d2e;margin-bottom:16px}
 .modal label{font-size:11px;color:#6b7280;display:block;margin-bottom:4px;margin-top:12px;text-transform:uppercase;letter-spacing:.5px}
-.modal input,.modal textarea,.modal select{width:100%;background:#131629;border:1px solid #252840;border-radius:6px;padding:8px 10px;font-size:12px;color:#dde1ec}
-.modal input:focus,.modal textarea:focus,.modal select:focus{outline:none;border-color:#5b6ef5}
+.modal input,.modal textarea,.modal select{width:100%;background:#f8f9fc;border:1px solid #d1d5e0;border-radius:6px;padding:8px 10px;font-size:12px;color:#1a1d2e}
+.modal input:focus,.modal textarea:focus,.modal select:focus{outline:none;border-color:#5b6ef5;background:#fff}
 .modal textarea{resize:vertical;min-height:60px}
 .modal-btns{display:flex;gap:8px;margin-top:16px;justify-content:flex-end}
 .btn-primary{background:#5b6ef5;color:#fff;border:none;border-radius:6px;padding:8px 16px;font-size:12px;font-weight:500}
-.btn-secondary{background:transparent;color:#6b7280;border:1px solid #252840;border-radius:6px;padding:8px 16px;font-size:12px}
+.btn-secondary{background:transparent;color:#6b7280;border:1px solid #d1d5e0;border-radius:6px;padding:8px 16px;font-size:12px}
 </style>
 </head>
 <body>
@@ -337,7 +338,7 @@ function html(D){return`
     <button class="m-add" id="btn-upload" style="border-color:#5b6ef5;color:#5b6ef5">⬆ Nahrát CSV</button>
   </div>
 </div>
-${showUpload?`<div class="upload-zone" id="uz"><input type="file" id="fi" accept=".csv"><div style="font-size:28px">📂</div><div style="font-size:13px;font-weight:600;color:#dde1ec;margin-top:8px">Přetáhni CSV nebo klikni</div><div style="font-size:11px;color:#6b7280;margin-top:6px">Formát: viz tlačítko "Stáhnout šablonu" níže</div><button onclick="downloadTemplate()" style="margin-top:10px;background:#5b6ef5;color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:11px;cursor:pointer">📥 Stáhnout šablonu CSV</button></div>`:''}
+${showUpload?`<div class="upload-zone" id="uz"><input type="file" id="fi" accept=".csv"><div style="font-size:28px">📂</div><div style="font-size:13px;font-weight:600;color:#1a1d2e;margin-top:8px">Přetáhni CSV nebo klikni</div><div style="font-size:11px;color:#6b7280;margin-top:6px">Formát: viz tlačítko "Stáhnout šablonu" níže</div><button onclick="downloadTemplate()" style="margin-top:10px;background:#5b6ef5;color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:11px;cursor:pointer">📥 Stáhnout šablonu CSV</button></div>`:''}
 <div class="month-bar">
   <span class="m-label">POHLED:</span>
   <button class="m-btn${viewMode==='all'?' active':''}" id="btn-viewall">📊 Celkem</button>
@@ -410,7 +411,7 @@ ${D.objednavky.map(o=>{
       <div style="display:flex;align-items:center;gap:10px;flex:1">
         <div style="width:8px;height:8px;border-radius:50%;background:${o.color};flex-shrink:0"></div>
         <div>
-          <div style="font-weight:600;font-size:13px;color:#f1f5f9">${o.name}</div>
+          <div style="font-weight:600;font-size:13px;color:#1a1d2e">${o.name}</div>
           ${open?'':` <div style="font-size:11px;color:#6b7280;margin-top:2px">${o.desc}</div>`}
         </div>
       </div>
@@ -423,11 +424,11 @@ ${D.objednavky.map(o=>{
       </div>
     </button>
     ${open?`<div class="exp-body" style="padding:14px 20px">
-      <div style="font-size:12px;color:#9ca3af;margin-bottom:12px">${o.desc}</div>
+      <div style="font-size:12px;color:#6b7280;margin-bottom:12px">${o.desc}</div>
       <div class="ctitle">Nejčastější důvody kontaktu</div>
       ${o.detail.map((q,i)=>`<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid #131629">
         <div style="width:18px;height:18px;border-radius:50%;background:${o.color}22;color:${o.color};font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0">${i+1}</div>
-        <span style="font-size:12px;color:#c4c9d9">${q}</span>
+        <span style="font-size:12px;color:#374151">${q}</span>
       </div>`).join('')}
     </div>`:''}
   </div>`;}).join('')}`;}
@@ -435,7 +436,7 @@ ${D.objednavky.map(o=>{
 // ── PORADENSTVÍ ──────────────────────────────────────────────
 function tabPor(D){
   // find selected question set
-  let detailHtml = `<div class="detail-panel" style="display:flex;align-items:center;justify-content:center;color:#3a3f55;font-size:13px;text-align:center">
+  let detailHtml = `<div class="detail-panel" style="display:flex;align-items:center;justify-content:center;color:#9ca3af;font-size:13px;text-align:center">
     ← Vyber téma a podtéma<br>pro zobrazení konkrétních otázek
   </div>`;
 
@@ -445,7 +446,7 @@ function tabPor(D){
     if(sub){
       detailHtml=`<div class="detail-panel">
         <div style="font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">${openPor}</div>
-        <div style="font-size:14px;font-weight:600;color:#f1f5f9;margin-bottom:4px">${sub.name}</div>
+        <div style="font-size:14px;font-weight:600;color:#1a1d2e;margin-bottom:4px">${sub.name}</div>
         <div style="font-size:12px;color:#5b6ef5;margin-bottom:14px">${sub.count} dotazů / měsíc</div>
         <div class="ctitle">Konkrétní otázky zákazníků</div>
         ${sub.questions.map(q=>`<div class="q-item"><div class="q-bullet"></div><span>${q}</span></div>`).join('')}
@@ -467,7 +468,7 @@ function tabPor(D){
           <button class="exp-hdr" data-por="${p.name}">
             <div style="display:flex;align-items:center;gap:8px;flex:1">
               <div style="width:16px;height:3px;border-radius:99px;background:${p.color};flex-shrink:0"></div>
-              <span style="font-size:12px;color:#dde1ec">${p.name}</span>
+              <span style="font-size:12px;color:#1a1d2e">${p.name}</span>
             </div>
             <div style="display:flex;align-items:center;gap:6px">
               <span style="font-size:13px;font-weight:600;color:${p.color}">${p.count}</span>
@@ -479,7 +480,7 @@ function tabPor(D){
               const isSel=openSub===s.name;
               return`<div class="sub-exp${isSel?' open':''}">
                 <button class="sub-hdr" data-sub="${s.name}">
-                  <span style="font-size:12px;color:${isSel?p.color:'#9ca3af'};font-weight:${isSel?'600':'400'}">${s.name}</span>
+                  <span style="font-size:12px;color:${isSel?p.color:'#6b7280'};font-weight:${isSel?'600':'400'}">${s.name}</span>
                   <span style="font-size:12px;font-weight:600;color:${p.color}">${s.count}×</span>
                 </button>
               </div>`;
@@ -516,7 +517,7 @@ ${R.byAgent.map((a,i)=>{
       <div style="display:flex;align-items:center;gap:12px;flex:1">
         <div style="width:28px;height:28px;border-radius:50%;background:${P[i%P.length]}22;color:${P[i%P.length]};font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">${i+1}</div>
         <div>
-          <div style="font-weight:600;font-size:13px;color:#f1f5f9">${a.name}</div>
+          <div style="font-weight:600;font-size:13px;color:#1a1d2e">${a.name}</div>
           <div style="display:flex;gap:6px;margin-top:4px;flex-wrap:wrap">
             ${Object.entries(typCounts).map(([typ,cnt])=>`<span style="font-size:10px;padding:1px 7px;border-radius:4px;background:${typColors[typ]||'#73726c'}22;color:${typColors[typ]||'#73726c'}">${typ} ${cnt}×</span>`).join('')}
           </div>
@@ -547,7 +548,7 @@ ${R.byAgent.map((a,i)=>{
   </div>`;}).join('')}
 </div>
 <div class="card"><div class="ctitle">Doporučené akce</div>
-${R.notes.map(n=>`<div class="issue-card" style="background:${n.color}0d;border-left-color:${n.color};margin-bottom:8px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:9px;padding:2px 8px;border-radius:4px;background:${n.color}22;color:${n.color};font-weight:700">${n.level}</span><span style="font-size:13px;font-weight:600;color:#f1f5f9">${n.title}</span></div><div style="font-size:11px;color:#6b7280;margin-bottom:5px">${n.desc}</div><span style="font-size:11px;color:#5b6ef5;background:rgba(91,110,245,.08);border-radius:4px;padding:3px 8px">→ ${n.action}</span></div>`).join('')}</div>`;}
+${R.notes.map(n=>`<div class="issue-card" style="background:${n.color}0d;border-left-color:${n.color};margin-bottom:8px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:9px;padding:2px 8px;border-radius:4px;background:${n.color}22;color:${n.color};font-weight:700">${n.level}</span><span style="font-size:13px;font-weight:600;color:#1a1d2e">${n.title}</span></div><div style="font-size:11px;color:#6b7280;margin-bottom:5px">${n.desc}</div><span style="font-size:11px;color:#5b6ef5;background:rgba(91,110,245,.08);border-radius:4px;padding:3px 8px">→ ${n.action}</span></div>`).join('')}</div>`;}
 
 // ── PROBLÉMY ─────────────────────────────────────────────────
 function stBadge(s){
@@ -567,18 +568,18 @@ ${D.problémy.map(p=>`
     <div style="flex:1">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap">
         <span style="font-size:9px;padding:2px 8px;border-radius:4px;background:${p.color}22;color:${p.color};font-weight:700">${p.level}</span>
-        <span style="font-size:13px;font-weight:600;color:#f1f5f9">${p.title}</span>
+        <span style="font-size:13px;font-weight:600;color:#1a1d2e">${p.title}</span>
         <span style="font-size:11px;color:#6b7280">${p.freq}</span>
       </div>
-      <div style="font-size:11px;color:#9ca3af;margin-bottom:8px">${p.desc}</div>
+      <div style="font-size:11px;color:#6b7280;margin-bottom:8px">${p.desc}</div>
       <div class="meta-row">
         ${stBadge(p.status)}
         <span class="meta-pill" style="background:rgba(91,110,245,.15);color:#a5b4fc">👤 ${p.owner}</span>
-        <span class="meta-pill" style="background:#131629;color:#6b7280">💬 ${p.comments.length} komentářů</span>
+        <span class="meta-pill" style="background:#f4f6fb;color:#6b7280">💬 ${p.comments.length} komentářů</span>
       </div>
     </div>
     <div style="display:flex;gap:6px;flex-shrink:0">
-      <button onclick="editStatus('${p.id}')" style="font-size:10px;padding:4px 10px;border-radius:4px;border:1px solid #252840;background:transparent;color:#9ca3af">Změnit stav</button>
+      <button onclick="editStatus('${p.id}')" style="font-size:10px;padding:4px 10px;border-radius:4px;border:1px solid #252840;background:transparent;color:#6b7280">Změnit stav</button>
       <button onclick="toggleDetail('${p.id}')" style="font-size:10px;padding:4px 10px;border-radius:4px;border:1px solid #5b6ef5;background:rgba(91,110,245,.1);color:#a5b4fc">Detail</button>
     </div>
   </div>
@@ -587,13 +588,13 @@ ${D.problémy.map(p=>`
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
       <div>
         <div class="ctitle" style="margin-bottom:10px">Fakta na stole</div>
-        ${p.facts.map(f=>`<div style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid #131629;font-size:12px;color:#c4c9d9"><span style="color:#5b6ef5;flex-shrink:0">▸</span>${f}</div>`).join('')}
-        <div style="margin-top:10px;font-size:11px;color:#6b7280"><span style="font-weight:500;color:#9ca3af">Akce:</span> ${p.action}</div>
+        ${p.facts.map(f=>`<div style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid #131629;font-size:12px;color:#374151"><span style="color:#5b6ef5;flex-shrink:0">▸</span>${f}</div>`).join('')}
+        <div style="margin-top:10px;font-size:11px;color:#6b7280"><span style="font-weight:500;color:#6b7280">Akce:</span> ${p.action}</div>
       </div>
       <div>
         <div class="ctitle" style="margin-bottom:10px">Komentáře a posun</div>
         <div class="comment-block" style="border-top:none;padding-top:0">
-          ${p.comments.length===0?`<div style="font-size:12px;color:#3a3f55;text-align:center;padding:16px">Zatím žádné komentáře</div>`:''}
+          ${p.comments.length===0?`<div style="font-size:12px;color:#9ca3af;text-align:center;padding:16px">Zatím žádné komentáře</div>`:''}
           ${p.comments.map(c=>`<div class="comment"><div class="c-meta">${c.author} · ${c.date}</div>${c.text}</div>`).join('')}
           <div class="add-comment">
             <textarea id="cmt-${p.id}" placeholder="Přidat komentář..." rows="2"></textarea>
@@ -607,8 +608,8 @@ ${D.problémy.map(p=>`
 
 // ── CHARTS ───────────────────────────────────────────────────
 function buildCharts(D){
-  const gc='rgba(255,255,255,.06)',tc='#6b7280';
-  const base={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#1a1b2e',titleColor:'#dde1ec',bodyColor:'#9ca3af',borderColor:'rgba(255,255,255,.1)',borderWidth:1}}};
+  const gc='rgba(0,0,0,.06)',tc='#6b7280';
+  const base={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#fff',titleColor:'#1a1d2e',bodyColor:'#6b7280',borderColor:'#e2e5ef',borderWidth:1}}};
   const g=id=>document.getElementById(id);
 
   if(activeTab==="přehled"){
